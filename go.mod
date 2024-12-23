@@ -1,4 +1,4 @@
-module github.com/cobra
+module github.com/cobra-base/cobra-go
 
 go 1.22.1
 
