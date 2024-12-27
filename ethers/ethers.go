@@ -109,3 +109,20 @@ func GetERC20Decimals(address string, endpoint string) (uint8, error) {
 	decimals, err := contract.Decimals(&bind.CallOpts{})
 	return decimals, err
 }
+
+func GetERC20Balance(owner string, address string, endpoint string) (*big.Int, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+
+	ownerAddress := common.HexToAddress(owner)
+	tokenAddress := common.HexToAddress(address)
+	contract, err := NewERC20(tokenAddress, client)
+	if err != nil {
+		return nil, err
+	}
+	bal, err := contract.BalanceOf(&bind.CallOpts{}, ownerAddress)
+	return bal, err
+}
