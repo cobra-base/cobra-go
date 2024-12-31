@@ -18,7 +18,7 @@ type ChainInfo struct {
 	PancakeswapV3QuoterAddress  string
 
 	USDTAddress string
-	WBNBAddress string
+	WETHAddress string
 }
 
 var Chains = map[string]*ChainInfo{
@@ -36,7 +36,7 @@ var Chains = map[string]*ChainInfo{
 		PancakeswapV3QuoterAddress:  "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
 
 		USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
-		WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+		WETHAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
 	},
 }
 
