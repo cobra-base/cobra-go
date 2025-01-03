@@ -19,6 +19,9 @@ type ChainInfo struct {
 
 	USDTAddress string
 	WETHAddress string
+
+	USDTDecimals int
+	WETHDecimals int
 }
 
 var Chains = map[string]*ChainInfo{
@@ -37,6 +40,9 @@ var Chains = map[string]*ChainInfo{
 
 		USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
 		WETHAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+
+		USDTDecimals: 18,
+		WETHDecimals: 18,
 	},
 }
 
