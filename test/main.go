@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/cobra-base/cobra-go/ethers"
 	"github.com/cobra-base/cobra-go/glog"
-	dexScreenerApi "github.com/cobra-base/cobra-go/thirdparty"
+	dexScreenerApi "github.com/cobra-base/cobra-go/thirdparty/dexscreener"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"os"
