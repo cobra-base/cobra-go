@@ -203,3 +203,11 @@ func (s *Quoter) QuoteExactInputForPancakeV3(quoterAddress common.Address, path 
 
 	return qr, nil
 }
+
+func (s *Quoter) GetFeeForUniswapV3(pairAddress common.Address) {
+	uniswap_binding.NewUniswapV3
+}
+
+func (s *Quoter) GetFeeForPancakeswapV3(pairAddress common.Address) {
+
+}

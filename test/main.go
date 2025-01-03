@@ -34,18 +34,40 @@ func main2() {
 
 }
 
-func main() {
+func main_uniwap_v2() {
 	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
 	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
 	endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
 
-	routerAddress := ethers.BscPancakeswapV3QuoterAddress
-	tokenIn := common.HexToAddress("0xc748673057861a797275CD8A068AbB95A902e8de")
-	tokenOut := common.HexToAddress("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
-	fee := big.NewInt(10000)
+	routerAddress := common.HexToAddress(ethers.Chains["bsc"].UniswapV2RouterAddress)
 
-	exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(9), nil)
+	tokenIn := common.HexToAddress(ethers.Chains["bsc"].WETHAddress)
+	tokenOut := common.HexToAddress(ethers.Chains["bsc"].USDTAddress)
+
+	exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(18), nil)
+	amountIn := big.NewInt(0).Mul(big.NewInt(1), exp)
+
+	quoter := ethers.GetQuoter()
+	v, e := quoter.GetAmountsOutForUniswapV2(routerAddress, []common.Address{tokenIn, tokenOut}, amountIn, endpoint)
+
+	fmt.Println(e)
+	fmt.Println(v)
+}
+
+func main_uniwap_v3() {
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+
+	endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
+
+	routerAddress := ethers.Chains["bsc"].UniswapV3QuoterAddress
+
+	tokenIn := common.HexToAddress(ethers.Chains["bsc"].WETHAddress)
+	tokenOut := common.HexToAddress(ethers.Chains["bsc"].USDTAddress)
+	fee := big.NewInt(100)
+
+	exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(18), nil)
 	amountIn := big.NewInt(0).Mul(big.NewInt(1), exp)
 
 	quoter := ethers.GetQuoter()
@@ -54,4 +76,8 @@ func main() {
 	fmt.Println(e)
 	fmt.Println(v)
 	fmt.Println(ethers.FormatEther(v.AmountOut))
+}
+
+func main() {
+	main_uniwap_v2()
 }
