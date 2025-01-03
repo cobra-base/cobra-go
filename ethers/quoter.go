@@ -204,10 +204,42 @@ func (s *Quoter) QuoteExactInputForPancakeV3(quoterAddress common.Address, path 
 	return qr, nil
 }
 
-func (s *Quoter) GetFeeForUniswapV3(pairAddress common.Address) {
-	uniswap_binding.NewUniswapV3
+func (s *Quoter) GetFeeForUniswapV3(pairAddress common.Address, endpoint string) (int64, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return 0, err
+	}
+	defer client.Close()
+
+	pair, err := uniswap_binding.NewUniswapV3Pair(pairAddress, client)
+	if err != nil {
+		return 0, err
+	}
+
+	fee, err := pair.Fee(nil)
+	if err != nil {
+		return 0, err
+	}
+
+	return fee.Int64(), nil
 }
 
-func (s *Quoter) GetFeeForPancakeswapV3(pairAddress common.Address) {
+func (s *Quoter) GetFeeForPancakeswapV3(pairAddress common.Address, endpoint string) (int64, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return 0, err
+	}
+	defer client.Close()
 
+	pair, err := pancakeswap_binding.NewPancakeswapV3Pair(pairAddress, client)
+	if err != nil {
+		return 0, err
+	}
+
+	fee, err := pair.Fee(nil)
+	if err != nil {
+		return 0, err
+	}
+
+	return fee.Int64(), nil
 }
