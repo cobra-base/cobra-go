@@ -79,10 +79,7 @@ func main_uniwap_v3() {
 }
 
 func main() {
-	endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
-	quoter := ethers.GetQuoter()
-
-	addr := common.HexToAddress("0xD4fB9d253739C5dB6aAD90aD2409757d224CCc0C")
-	v, e := quoter.GetFeeForPancakeswapV3(addr, endpoint)
-	fmt.Println(e, v)
+	i := big.NewInt(3520430602)
+	s := ethers.FormatUnits(i, 18)
+	fmt.Println(s)
 }

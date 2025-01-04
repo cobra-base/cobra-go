@@ -27,7 +27,8 @@ func FormatUnits(v *big.Int, unit int) string {
     f := new(big.Float)
     f.SetInt(v)
     q := new(big.Float).Quo(f, big.NewFloat(math.Pow10(unit)))
-    return q.String()
+    return q.Text('f', 18)
+    // return q.String()
 }
 
 func ToFriendlyAmount(v *big.Int, decimals int, precision int) string {
