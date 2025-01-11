@@ -2,6 +2,8 @@ package ethers
 
 import (
     "context"
+    "errors"
+    "fmt"
     "github.com/cobra-base/cobra-go/ethers/binding"
     "github.com/ethereum/go-ethereum/accounts/abi/bind"
     "github.com/ethereum/go-ethereum/common"
@@ -9,6 +11,11 @@ import (
     "math"
     "math/big"
     "strings"
+)
+
+var (
+    weiPerGO   = big.NewInt(1e18)
+    weiPerGwei = big.NewInt(1e9)
 )
 
 func FormatEther(v *big.Int) string {
@@ -29,6 +36,48 @@ func FormatUnits(v *big.Int, unit int) string {
     q := new(big.Float).Quo(f, big.NewFloat(math.Pow10(unit)))
     return q.Text('f', 18)
     // return q.String()
+}
+
+func ParseEther(s string) (*big.Int, error) {
+    return ParseUnits(s, 18)
+}
+
+func ParseGWei(s string) (*big.Int, error) {
+    return ParseUnits(s, 9)
+}
+
+func ParseWei(s string) (*big.Int, error) {
+    return ParseUnits(s, 0)
+}
+
+func ParseUnits(s string, unit int) (*big.Int, error) {
+    parts := strings.Split(s, ".")
+
+    whole, ok := new(big.Int).SetString(parts[0], 10)
+    if !ok {
+        return nil, fmt.Errorf("failed to integer part:%s", whole)
+    }
+    whole = new(big.Int).Mul(whole, new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(unit)), nil))
+
+    if len(parts) == 1 {
+        return whole, nil
+    }
+
+    if len(parts) > 2 {
+        return nil, errors.New("invalid value: more than one decimal point")
+    }
+
+    decStr := parts[1]
+    if len(decStr) > unit {
+        return nil, fmt.Errorf("too many decimal digits %d: limit %d", len(decStr), unit)
+    }
+
+    dec, ok := new(big.Int).SetString(decStr+strings.Repeat("0", unit-len(decStr)), 10)
+    if !ok {
+        return nil, fmt.Errorf("failed to decimal part: %s", decStr)
+    }
+
+    return whole.Add(whole, dec), nil
 }
 
 func ToFriendlyAmount(v *big.Int, decimals int, precision int) string {

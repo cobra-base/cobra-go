@@ -79,7 +79,15 @@ func main_uniwap_v3() {
 }
 
 func main() {
-	i := big.NewInt(3520430602)
-	s := ethers.FormatUnits(i, 18)
-	fmt.Println(s)
+	v, e := ethers.ParseUnits("1.111", 18)
+	fmt.Println(v, e)
+
+	v, e = ethers.ParseUnits("1.111", 9)
+	fmt.Println(v, e)
+
+	v, e = ethers.ParseUnits("1.111", 3)
+	fmt.Println(v, e)
+
+	v, e = ethers.ParseUnits("111", 3)
+	fmt.Println(v, e)
 }
