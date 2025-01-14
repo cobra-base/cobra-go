@@ -6,11 +6,10 @@ import (
     "github.com/cobra-base/cobra-go/ethers"
     "github.com/cobra-base/cobra-go/glog"
     dexScreenerApi "github.com/cobra-base/cobra-go/thirdparty/dexscreener"
-    "github.com/cobra-base/cobra-go/utils"
+    "github.com/cobra-base/cobra-go/thirdparty/okx"
     "github.com/ethereum/go-ethereum/common"
     "math/big"
     "os"
-    "time"
 )
 
 func main2() {
@@ -84,8 +83,31 @@ func main() {
     os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
     os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
-    utils.SmsNotify("T1", "haha")
-    utils.SmsLimit("T2", "pepe", 60)
+    logConf := &glog.Config{}
+    logConf.LogName = "test"
+    glog.Init(logConf)
 
-    time.Sleep(10 * time.Second)
+    conf := &okx.Conf{}
+    conf.ApiKey = "e5be2397-669c-47f7-9ce0-722030f89854"
+    conf.SecretKey = "A1BE68AF3925CFFE531FFBBDDFA24605"
+    conf.PassphraseKey = "bUwac#?3H8CyKuq10cA"
+    conf.ProjectId = "c002833d9ee1950b0939324f365e8c52"
+
+    usdt := "0x55d398326f99059fF775485246999027B3197955"
+
+    chainId := 56
+
+    aggregator := okx.GetAggregator()
+    aggregator.Init(conf, usdt)
+
+    // token := "0xadcdbcb0db9edf31509971f64f0a8e0fc53b384d"
+    // decimals := 18
+    token := "0xc748673057861a797275CD8A068AbB95A902e8de"
+
+    bp, sp, err := aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "5000")
+    fmt.Println(bp, sp, err)
+
+    bp, sp, err = aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "10000")
+
+    fmt.Println(bp, sp, err)
 }
