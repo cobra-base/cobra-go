@@ -35,13 +35,22 @@ func (s *Client) Init(conf *Conf) error {
     return nil
 }
 
-// GetOrderBook 获取市场深度信息
-func (s *Client) GetOrderBook(currencyPair string) (*gateapi.OrderBook, error) {
-    opts := &gateapi.ListOrderBookOpts{}
-    opts.Limit = optional.NewInt32(50)
-    book, _, err := s.gateClient.SpotApi.ListOrderBook(context.Background(), currencyPair, opts)
+// GetSpotCurrenciesSingle 查询单个币种信息
+func (s *Client) GetSpotCurrenciesSingle(currency string) (*gateapi.Currency, error) {
+    c, _, err := s.gateClient.SpotApi.GetCurrency(context.Background(), currency)
     if err != nil {
         return nil, err
     }
-    return &book, nil
+    return &c, err
+}
+
+// GetSpotOrderBook 获取市场深度信息
+func (s *Client) GetSpotOrderBook(currencyPair string) (*gateapi.OrderBook, error) {
+    opts := &gateapi.ListOrderBookOpts{}
+    opts.Limit = optional.NewInt32(50)
+    b, _, err := s.gateClient.SpotApi.ListOrderBook(context.Background(), currencyPair, opts)
+    if err != nil {
+        return nil, err
+    }
+    return &b, nil
 }

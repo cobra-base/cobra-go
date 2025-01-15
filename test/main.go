@@ -122,7 +122,8 @@ func main() {
         ApiSecret: "c0a54596d96d17fc8baf573282720b201ba4b11107b6550956bb3c4b940f3031",
     }
     gate.GetClient().Init(conf)
-    b, e := gate.GetClient().GetOrderBook("BTC_USDT")
+    // b, e := gate.GetClient().GetSpotOrderBook("BABYDOGE_USDT")
+    b, e := gate.GetClient().GetSpotCurrenciesSingle("BABYDOGE")
     fmt.Println(e)
     fmt.Printf("%+v", b)
 }
