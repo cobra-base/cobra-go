@@ -80,7 +80,7 @@ func main_uniwap_v3() {
     fmt.Println(ethers.FormatEther(v.AmountOut))
 }
 
-func mai2() {
+func main() {
     os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
     os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
@@ -105,15 +105,19 @@ func mai2() {
     // decimals := 18
     token := "0xc748673057861a797275CD8A068AbB95A902e8de"
 
-    bp, sp, err := aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "5000")
-    fmt.Println(bp, sp, err)
+    v, _ := ethers.ParseUnits("1000000000000", 9)
+    aggregator.Quote(chainId, token, usdt, v)
+    /*
+       bp, sp, err := aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "5000")
+       fmt.Println(bp, sp, err)
 
-    bp, sp, err = aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "10000")
+       bp, sp, err = aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "10000")
 
-    fmt.Println(bp, sp, err)
+       fmt.Println(bp, sp, err)
+    */
 }
 
-func main() {
+func main3() {
     os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
     os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
@@ -122,8 +126,9 @@ func main() {
         ApiSecret: "c0a54596d96d17fc8baf573282720b201ba4b11107b6550956bb3c4b940f3031",
     }
     gate.GetClient().Init(conf)
-    // b, e := gate.GetClient().GetSpotOrderBook("BABYDOGE_USDT")
-    b, e := gate.GetClient().GetCurrencyChains("BABYDOGE")
+    b, e := gate.GetClient().GetSpotOrderBook("BABYDOGE_USDT")
+
     fmt.Println(e)
-    fmt.Printf("%+v", b)
+    i, _ := json.Marshal(b)
+    fmt.Println(string(i))
 }
