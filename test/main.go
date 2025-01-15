@@ -6,6 +6,7 @@ import (
     "github.com/cobra-base/cobra-go/ethers"
     "github.com/cobra-base/cobra-go/glog"
     dexScreenerApi "github.com/cobra-base/cobra-go/thirdparty/dexscreener"
+    "github.com/cobra-base/cobra-go/thirdparty/gate"
     "github.com/cobra-base/cobra-go/thirdparty/okx"
     "github.com/ethereum/go-ethereum/common"
     "math/big"
@@ -79,7 +80,7 @@ func main_uniwap_v3() {
     fmt.Println(ethers.FormatEther(v.AmountOut))
 }
 
-func main() {
+func mai2() {
     os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
     os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
@@ -110,4 +111,18 @@ func main() {
     bp, sp, err = aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "10000")
 
     fmt.Println(bp, sp, err)
+}
+
+func main() {
+    os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+    os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+
+    conf := &gate.Conf{
+        ApiKey:    "16266714865a96224e6d8d39498495c3",
+        ApiSecret: "c0a54596d96d17fc8baf573282720b201ba4b11107b6550956bb3c4b940f3031",
+    }
+    gate.GetClient().Init(conf)
+    b, e := gate.GetClient().GetOrderBook("BTC_USDT")
+    fmt.Println(e)
+    fmt.Printf("%+v", b)
 }
