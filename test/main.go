@@ -123,7 +123,7 @@ func main() {
     }
     gate.GetClient().Init(conf)
     // b, e := gate.GetClient().GetSpotOrderBook("BABYDOGE_USDT")
-    b, e := gate.GetClient().GetSpotCurrenciesSingle("BABYDOGE")
+    b, e := gate.GetClient().GetCurrencyChains("BABYDOGE")
     fmt.Println(e)
     fmt.Printf("%+v", b)
 }

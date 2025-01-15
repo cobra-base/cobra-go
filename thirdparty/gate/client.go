@@ -35,6 +35,12 @@ func (s *Client) Init(conf *Conf) error {
     return nil
 }
 
+// GetCurrencyChains 查询币种支持的链
+func (s *Client) GetCurrencyChains(currency string) ([]gateapi.CurrencyChain, error) {
+    c, _, err := s.gateClient.WalletApi.ListCurrencyChains(context.Background(), currency)
+    return c, err
+}
+
 // GetSpotCurrenciesSingle 查询单个币种信息
 func (s *Client) GetSpotCurrenciesSingle(currency string) (*gateapi.Currency, error) {
     c, _, err := s.gateClient.SpotApi.GetCurrency(context.Background(), currency)
