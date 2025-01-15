@@ -183,8 +183,7 @@ func (s *Aggregator) QuoteUsdtPrice(chainId int, tokenAddress string, usdtAddres
 	if err != nil {
 		return 0, 0, err
 	}
-	i, _ := json.Marshal(qr)
-	fmt.Println(string(i))
+
 	tokenAmount, err := ethers.ParseWei(qr.ToTokenAmount)
 	if err != nil {
 		return 0, 0, err
