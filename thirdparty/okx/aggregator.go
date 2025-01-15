@@ -38,8 +38,9 @@ func GetAggregator() *Aggregator {
     return aggregatorInstance
 }
 
-func (s *Aggregator) Init(conf *Conf) {
+func (s *Aggregator) Init(conf *Conf) error {
     s.conf = conf
+    return nil
 }
 
 func (s *Aggregator) preHash(timestamp string, method string, requestPath string, params map[string]string) string {
