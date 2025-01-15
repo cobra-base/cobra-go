@@ -9,7 +9,6 @@ import (
     "errors"
     "fmt"
     "github.com/cobra-base/cobra-go/ethers"
-    "github.com/cobra-base/cobra-go/glog"
     "github.com/cobra-base/cobra-go/utils"
     "io"
     "math/big"
@@ -22,10 +21,10 @@ import (
 const okxHost = "https://www.okx.com"
 
 type Conf struct {
-    ApiKey        string `json:"apiKey"`
-    SecretKey     string `json:"secretKey"`
-    PassphraseKey string `json:"passphrase"`
-    ProjectId     string `json:"projectId"`
+    ApiKey     string `json:"apiKey"`
+    SecretKey  string `json:"secretKey"`
+    Passphrase string `json:"passphrase"`
+    ProjectId  string `json:"projectId"`
 }
 
 type Aggregator struct {
@@ -96,7 +95,7 @@ func (s *Aggregator) GetReq(reqPath string, params map[string]string) ([]byte, e
     }
 
     req.Header.Set("OK-ACCESS-KEY", s.conf.ApiKey)
-    req.Header.Set("OK-ACCESS-PASSPHRASE", s.conf.PassphraseKey)
+    req.Header.Set("OK-ACCESS-PASSPHRASE", s.conf.Passphrase)
     req.Header.Set("OK-ACCESS-PROJECT", s.conf.ProjectId)
     req.Header.Set("OK-ACCESS-SIGN", signature)
     req.Header.Set("OK-ACCESS-TIMESTAMP", timestamp)
@@ -118,12 +117,12 @@ func (s *Aggregator) GetReq(reqPath string, params map[string]string) ([]byte, e
     defer rsp.Body.Close()
 
     stopWatch.Stop()
-    spendTime := stopWatch.Duration()
+    // spendTime := stopWatch.Duration()
 
     statusCode := rsp.StatusCode
     statusMessage := rsp.Status
 
-    glog.Debugw("ok aggregator get", "url", webUrl, "statusCode", statusCode, "statusMessage", statusMessage, "spendTime(Ms)", spendTime)
+    // glog.Debugw("ok aggregator get", "url", webUrl, "statusCode", statusCode, "statusMessage", statusMessage, "spendTime(Ms)", spendTime)
 
     // v, _ := json.Marshal(rsp)
     // fmt.Println(v)
@@ -155,8 +154,8 @@ func (s *Aggregator) Quote(chainId int, fromTokenAddress string, toTokenAddress 
         return nil, err
     }
     ////----
-    fmt.Println(string(data))
-    return nil, nil
+    // fmt.Println(string(data))
+    // return nil, nil
     ////----
     rsp := &QuoteRsp{}
     err = json.Unmarshal(data, rsp)
