@@ -91,7 +91,7 @@ func main() {
     conf := &okx.Conf{}
     conf.ApiKey = "e5be2397-669c-47f7-9ce0-722030f89854"
     conf.SecretKey = "A1BE68AF3925CFFE531FFBBDDFA24605"
-    conf.PassphraseKey = "bUwac#?3H8CyKuq10cA"
+    conf.Passphrase = "bUwac#?3H8CyKuq10cA"
     conf.ProjectId = "c002833d9ee1950b0939324f365e8c52"
 
     usdt := "0x55d398326f99059fF775485246999027B3197955"
@@ -99,14 +99,15 @@ func main() {
     chainId := 56
 
     aggregator := okx.GetAggregator()
-    aggregator.Init(conf, usdt)
+    aggregator.Init(conf)
 
     // token := "0xadcdbcb0db9edf31509971f64f0a8e0fc53b384d"
     // decimals := 18
     token := "0xc748673057861a797275CD8A068AbB95A902e8de"
 
-    v, _ := ethers.ParseUnits("1000000000000", 9)
-    aggregator.Quote(chainId, token, usdt, v)
+    v, _ := ethers.ParseUnits("2000", 18)
+    r, _ := aggregator.Quote(chainId, usdt, token, v)
+    fmt.Printf("%v", r)
     /*
        bp, sp, err := aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "5000")
        fmt.Println(bp, sp, err)
