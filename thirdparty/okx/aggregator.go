@@ -139,7 +139,38 @@ func (s *Aggregator) GetReq(reqPath string, params map[string]string) ([]byte, e
 	return body, nil
 }
 
-func (s *Aggregator) Quote(chainId int, fromTokenAddress string, toTokenAddress string, fromTokenAmount *big.Int) (*QuoteResult, error) {
+func (s *Aggregator) GetApproveTransaction(chainId int64, tokenContractAddress string, approveAmount *big.Int) (*ApproveTransactionResult, error) {
+	requestPath := "/api/v5/dex/aggregator/approve-transaction"
+	params := map[string]string{
+		"chainId":              fmt.Sprintf("%d", chainId),
+		"tokenContractAddress": tokenContractAddress,
+		"approveAmount":        ethers.FormatWei(approveAmount),
+	}
+	data, err := s.GetReq(requestPath, params)
+	if err != nil {
+		return nil, err
+	}
+
+	rsp := &ApproveTransactionRsp{}
+	err = json.Unmarshal(data, rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	if !strings.EqualFold(rsp.Code, "0") {
+		return nil, fmt.Errorf("approve transaction code except,code %s,msg %s", rsp.Code, rsp.Msg)
+	}
+
+	if len(rsp.Code) != 1 {
+		return nil, fmt.Errorf("approve transaction data except,len %d", len(rsp.Code))
+	}
+
+	ar := rsp.Data[0]
+
+	return ar, err
+}
+
+func (s *Aggregator) Quote(chainId int64, fromTokenAddress string, toTokenAddress string, fromTokenAmount *big.Int) (*QuoteResult, error) {
 	requestPath := "/api/v5/dex/aggregator/quote"
 	fromAmount := ethers.FormatWei(fromTokenAmount)
 	params := map[string]string{
@@ -176,7 +207,7 @@ func (s *Aggregator) Quote(chainId int, fromTokenAddress string, toTokenAddress 
 	return qr, err
 }
 
-func (s *Aggregator) QuoteUsdtPrice(chainId int, tokenAddress string, usdtAddress string, tokenDecimals int, usdtDecimals int, usdtAmountIn string) (float64, float64, error) {
+func (s *Aggregator) QuoteUsdtPrice(chainId int64, tokenAddress string, usdtAddress string, tokenDecimals int, usdtDecimals int, usdtAmountIn string) (float64, float64, error) {
 
 	// 查询买价
 
@@ -221,7 +252,7 @@ func (s *Aggregator) QuoteUsdtPrice(chainId int, tokenAddress string, usdtAddres
 
 // GenerateErc20SwapCallData 生成代币交换调用数据
 // slippage 滑点最小值为 0，最大值为 1 （如：0.005代表这笔交易的最大滑点为0.5%，1代表这笔交易的最大滑点为 100%））
-func (s *Aggregator) GenerateErc20SwapCallData(chainId int, fromTokenAddress string, toTokenAddress string, userWalletAddress string,
+func (s *Aggregator) GenerateErc20SwapCallData(chainId int64, fromTokenAddress string, toTokenAddress string, userWalletAddress string,
 	fromTokenAmount *big.Int, slippage float64, gasLevel GasLevel) (*SwapCallDataResult, error) {
 	params := map[string]string{
 		"chainId":           fmt.Sprintf("%d", chainId),

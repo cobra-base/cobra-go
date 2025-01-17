@@ -6,6 +6,19 @@ const GasLevelSlow = "slow"
 const GasLevelAverage = "average"
 const GasLevelFast = "fast"
 
+type ApproveTransactionResult struct {
+	Data               string `json:"data"`
+	DexContractAddress string `json:"dexContractAddress"`
+	GasLimit           string `json:"gasLimit"`
+	GasPrice           string `json:"gasPrice"`
+}
+
+type ApproveTransactionRsp struct {
+	Code string                      `json:"code"`
+	Data []*ApproveTransactionResult `json:"data"`
+	Msg  string                      `json:"msg"`
+}
+
 type TokenInfo struct {
 	Decimal              string `json:"decimal"`
 	IsHoneyPot           bool   `json:"isHoneyPot"`

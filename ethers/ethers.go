@@ -203,8 +203,13 @@ func AllowanceForERC20(owner common.Address, spender common.Address, token commo
 	return amount, err
 }
 
-func ApproveForERC20(signer *Signer, spender common.Address, token common.Address, amount *big.Int, endpoint string,
-	chainId int64, gasPrice *big.Int) (string, error) {
+type GasFeeParams struct {
+	GasTipCap *big.Int
+	GasFeeCap *big.Int
+	GasLimit  uint64
+}
+
+func ApproveForERC20(signer *Signer, spender common.Address, token common.Address, amount *big.Int, endpoint string, chainId int64, feeParams *GasFeeParams) (string, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return "", err
@@ -228,9 +233,10 @@ func ApproveForERC20(signer *Signer, spender common.Address, token common.Addres
 		Signer: func(address common.Address, transaction *types.Transaction) (*types.Transaction, error) {
 			return types.SignTx(transaction, signing, signer.privateKey)
 		},
-		GasPrice: gasPrice,
-		GasLimit: 100000,
-		Context:  context.Background(),
+		GasTipCap: feeParams.GasTipCap, // EIP 1559
+		GasFeeCap: feeParams.GasFeeCap,
+		GasLimit:  feeParams.GasLimit,
+		Context:   context.Background(),
 	}
 
 	tx, err := contract.Approve(opts, spender, amount)
@@ -239,6 +245,44 @@ func ApproveForERC20(signer *Signer, spender common.Address, token common.Addres
 	}
 
 	txHash := tx.Hash().Hex()
+
+	return txHash, nil
+}
+
+func SendRawTransaction(signer *Signer, toAddress common.Address, txData []byte, endpoint string, chainId int64, feeParams *GasFeeParams) (string, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	nonce, err := client.PendingNonceAt(context.Background(), signer.address)
+	if err != nil {
+		return "", fmt.Errorf("pending nonce fail,address %s:%s", signer.address, err.Error())
+	}
+
+	rawTx := types.NewTx(&types.DynamicFeeTx{
+		ChainID:   big.NewInt(chainId),
+		Nonce:     nonce,
+		GasTipCap: feeParams.GasTipCap,
+		GasFeeCap: feeParams.GasFeeCap,
+		Gas:       feeParams.GasLimit,
+		To:        &toAddress,
+		Value:     big.NewInt(0),
+		Data:      txData,
+	})
+	// signedTx, err := types.SignTx(rawTx, types.NewEIP155Signer(big.NewInt(chainId)), signer.privateKey)
+	signedTx, err := types.SignTx(rawTx, types.NewLondonSigner(big.NewInt(chainId)), signer.privateKey)
+	if err != nil {
+		return "", fmt.Errorf("sign tx fail,address %s:%s", signer.address, err.Error())
+	}
+
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		return "", fmt.Errorf("send tx fail,address %s:%s", signer.address, err.Error())
+	}
+
+	txHash := signedTx.Hash().Hex()
 
 	return txHash, nil
 }
