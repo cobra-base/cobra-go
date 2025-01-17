@@ -22,7 +22,7 @@ const (
 	TxStatusNotFound = TxStatus(4)
 )
 
-func ParsePath(path []byte) ([]common.Address, []int, error) {
+func ParsePathForUniswapV3(path []byte) ([]common.Address, []int, error) {
 	var addresses []common.Address
 	var fees []int
 
@@ -41,7 +41,7 @@ func ParsePath(path []byte) ([]common.Address, []int, error) {
 	return addresses, fees, nil
 }
 
-func BuildPath(addresses []common.Address, fees []int) ([]byte, error) {
+func BuildPathForUniswapV3(addresses []common.Address, fees []int) ([]byte, error) {
 	var path []byte
 	for i, address := range addresses {
 		// 将地址添加到路径中

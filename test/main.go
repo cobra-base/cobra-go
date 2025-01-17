@@ -1,135 +1,157 @@
 package main
 
 import (
-    "encoding/json"
-    "fmt"
-    "github.com/cobra-base/cobra-go/ethers"
-    "github.com/cobra-base/cobra-go/glog"
-    dexScreenerApi "github.com/cobra-base/cobra-go/thirdparty/dexscreener"
-    "github.com/cobra-base/cobra-go/thirdparty/gate"
-    "github.com/cobra-base/cobra-go/thirdparty/okx"
-    "github.com/ethereum/go-ethereum/common"
-    "math/big"
-    "os"
+	"encoding/json"
+	"fmt"
+	"github.com/cobra-base/cobra-go/ethers"
+	"github.com/cobra-base/cobra-go/glog"
+	dexScreenerApi "github.com/cobra-base/cobra-go/thirdparty/dexscreener"
+	"github.com/cobra-base/cobra-go/thirdparty/gate"
+	"github.com/cobra-base/cobra-go/thirdparty/okx"
+	"github.com/ethereum/go-ethereum/common"
+	"math/big"
+	"os"
 )
 
 func main2() {
-    fmt.Println("Start")
+	fmt.Println("Start")
 
-    logConf := &glog.Config{}
-    logConf.LogDir = "."
-    logConf.LogLevel = "debug"
-    logConf.LogName = "test"
-    logConf.WriteConsole = true
-    glog.Init(logConf)
+	logConf := &glog.Config{}
+	logConf.LogDir = "."
+	logConf.LogLevel = "debug"
+	logConf.LogName = "test"
+	logConf.WriteConsole = true
+	glog.Init(logConf)
 
-    os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
-    os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
-    tokenAddress := "0x111111111117dC0aa78b770fA6A738034120C302"
-    v, err := dexScreenerApi.GetTokenLiquidity(tokenAddress)
-    fmt.Println(err, len(v))
-    for _, e := range v {
-        i, _ := json.Marshal(e)
-        fmt.Println(string(i))
-    }
+	tokenAddress := "0x111111111117dC0aa78b770fA6A738034120C302"
+	v, err := dexScreenerApi.GetTokenLiquidity(tokenAddress)
+	fmt.Println(err, len(v))
+	for _, e := range v {
+		i, _ := json.Marshal(e)
+		fmt.Println(string(i))
+	}
 
 }
 
 func main_uniwap_v2() {
-    os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
-    os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
-    endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
+	endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
 
-    routerAddress := common.HexToAddress(ethers.Chains["bsc"].UniswapV2RouterAddress)
+	routerAddress := common.HexToAddress(ethers.Chains["bsc"].UniswapV2RouterAddress)
 
-    tokenIn := common.HexToAddress(ethers.Chains["bsc"].WETHAddress)
-    tokenOut := common.HexToAddress(ethers.Chains["bsc"].USDTAddress)
+	tokenIn := common.HexToAddress(ethers.Chains["bsc"].WETHAddress)
+	tokenOut := common.HexToAddress(ethers.Chains["bsc"].USDTAddress)
 
-    exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(18), nil)
-    amountIn := big.NewInt(0).Mul(big.NewInt(1), exp)
+	exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(18), nil)
+	amountIn := big.NewInt(0).Mul(big.NewInt(1), exp)
 
-    quoter := ethers.GetQuoter()
-    v, e := quoter.GetAmountsOutForUniswapV2(routerAddress, []common.Address{tokenIn, tokenOut}, amountIn, endpoint)
+	quoter := ethers.GetQuoter()
+	v, e := quoter.GetAmountsOutForUniswapV2(routerAddress, []common.Address{tokenIn, tokenOut}, amountIn, endpoint)
 
-    fmt.Println(e)
-    fmt.Println(v)
+	fmt.Println(e)
+	fmt.Println(v)
 }
 
 func main_uniwap_v3() {
-    os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
-    os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
-    endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
+	endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
 
-    routerAddress := ethers.Chains["bsc"].UniswapV3QuoterAddress
+	routerAddress := ethers.Chains["bsc"].UniswapV3QuoterAddress
 
-    tokenIn := common.HexToAddress(ethers.Chains["bsc"].WETHAddress)
-    tokenOut := common.HexToAddress(ethers.Chains["bsc"].USDTAddress)
-    fee := big.NewInt(100)
+	tokenIn := common.HexToAddress(ethers.Chains["bsc"].WETHAddress)
+	tokenOut := common.HexToAddress(ethers.Chains["bsc"].USDTAddress)
+	fee := big.NewInt(100)
 
-    exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(18), nil)
-    amountIn := big.NewInt(0).Mul(big.NewInt(1), exp)
+	exp := big.NewInt(0).Exp(big.NewInt(10), big.NewInt(18), nil)
+	amountIn := big.NewInt(0).Mul(big.NewInt(1), exp)
 
-    quoter := ethers.GetQuoter()
-    v, e := quoter.QuoteExactInputSingleForUniswapV3(common.HexToAddress(routerAddress), tokenIn, tokenOut, amountIn, fee, endpoint)
+	quoter := ethers.GetQuoter()
+	v, e := quoter.QuoteExactInputSingleForUniswapV3(common.HexToAddress(routerAddress), tokenIn, tokenOut, amountIn, fee, endpoint)
 
-    fmt.Println(e)
-    fmt.Println(v)
-    fmt.Println(ethers.FormatEther(v.AmountOut))
+	fmt.Println(e)
+	fmt.Println(v)
+	fmt.Println(ethers.FormatEther(v.AmountOut))
 }
 
 func main() {
-    os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
-    os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
-    logConf := &glog.Config{}
-    logConf.LogName = "test"
-    glog.Init(logConf)
+	logConf := &glog.Config{}
+	logConf.LogName = "test"
+	glog.Init(logConf)
 
-    conf := &okx.Conf{}
-    conf.ApiKey = "e5be2397-669c-47f7-9ce0-722030f89854"
-    conf.SecretKey = "A1BE68AF3925CFFE531FFBBDDFA24605"
-    conf.Passphrase = "bUwac#?3H8CyKuq10cA"
-    conf.ProjectId = "c002833d9ee1950b0939324f365e8c52"
+	conf := &okx.Conf{}
+	conf.ApiKey = "e5be2397-669c-47f7-9ce0-722030f89854"
+	conf.SecretKey = "A1BE68AF3925CFFE531FFBBDDFA24605"
+	conf.Passphrase = "bUwac#?3H8CyKuq10cA"
+	conf.ProjectId = "c002833d9ee1950b0939324f365e8c52"
 
-    usdt := "0x55d398326f99059fF775485246999027B3197955"
+	user := "0xE62d922D195A853f03211Ce69636D5A90288bFe2"
+	usdt := "0x55d398326f99059fF775485246999027B3197955"
 
-    chainId := 56
+	// chainId := 56
 
-    aggregator := okx.GetAggregator()
-    aggregator.Init(conf)
+	aggregator := okx.GetAggregator()
+	aggregator.Init(conf)
 
-    // token := "0xadcdbcb0db9edf31509971f64f0a8e0fc53b384d"
-    // decimals := 18
-    token := "0xc748673057861a797275CD8A068AbB95A902e8de"
+	// token := "0xadcdbcb0db9edf31509971f64f0a8e0fc53b384d"
+	// decimals := 18
+	token := "0xc748673057861a797275CD8A068AbB95A902e8de"
 
-    v, _ := ethers.ParseUnits("2000", 18)
-    r, _ := aggregator.Quote(chainId, usdt, token, v)
-    fmt.Printf("%v", r)
-    /*
-       bp, sp, err := aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "5000")
-       fmt.Println(bp, sp, err)
+	endpoint := "https://bnb-mainnet.g.alchemy.com/v2/R_dtWtvB3kAeG5ErH0CMtXi37rtJwhZW"
+	v, e := ethers.AllowanceForERC20(common.HexToAddress(user), common.HexToAddress(token), common.HexToAddress(usdt), endpoint)
+	fmt.Println(e, v)
 
-       bp, sp, err = aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "10000")
+	signer, _ := ethers.NewSigner("7cdabcfd826bac369c22c4e01992d27de5825d015b110921f9ee702c75847ad6")
+	txHash, e := ethers.ApproveForERC20(signer, common.HexToAddress("0x9Dd569c36610aF0b02c5D44b2427b922552E84c9"), common.HexToAddress(token), big.NewInt(1000),
+		endpoint, 56, big.NewInt(1500000000))
+	fmt.Println(e, txHash)
+	/*
+		v, _ := ethers.ParseUnits("2000", 18)
+		// r, _ := aggregator.Quote(chainId, usdt, token, v)
+		cd, _ := aggregator.GenerateErc20SwapCallData(chainId, usdt, token, user, v, 0.01, okx.GasLevelSlow)
+		//fmt.Println(e)
+		// s, _ := json.Marshal(cd)
+		fmt.Println(cd.Tx.Gas, cd.Tx.GasPrice, cd.Tx.MaxPriorityFeePerGas)
 
-       fmt.Println(bp, sp, err)
-    */
+		cd, _ = aggregator.GenerateErc20SwapCallData(chainId, usdt, token, user, v, 0.01, okx.GasLevelAverage)
+		fmt.Println(cd.Tx.Gas, cd.Tx.GasPrice, cd.Tx.MaxPriorityFeePerGas)
+
+		cd, _ = aggregator.GenerateErc20SwapCallData(chainId, usdt, token, user, v, 0.01, okx.GasLevelFast)
+		fmt.Println(cd.Tx.Gas, cd.Tx.GasPrice, cd.Tx.MaxPriorityFeePerGas)
+	*/
+	// fmt.Printf("%v", r)
+	/*
+	   bp, sp, err := aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "5000")
+	   fmt.Println(bp, sp, err)
+
+	   bp, sp, err = aggregator.QuoteUsdtPrice(chainId, token, usdt, 9, 18, "10000")
+
+	   fmt.Println(bp, sp, err)
+	*/
 }
 
-func main3() {
-    os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
-    os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
+func main333() {
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:7897")
+	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7897")
 
-    conf := &gate.Conf{
-        ApiKey:    "16266714865a96224e6d8d39498495c3",
-        ApiSecret: "c0a54596d96d17fc8baf573282720b201ba4b11107b6550956bb3c4b940f3031",
-    }
-    gate.GetClient().Init(conf)
-    b, e := gate.GetClient().GetSpotOrderBook("BABYDOGE_USDT")
+	conf := &gate.Conf{
+		ApiKey:    "16266714865a96224e6d8d39498495c3",
+		ApiSecret: "c0a54596d96d17fc8baf573282720b201ba4b11107b6550956bb3c4b940f3031",
+	}
+	gate.GetClient().Init(conf)
+	b, e := gate.GetClient().GetSpotOrderBook("BABYDOGE_USDT")
 
-    fmt.Println(e)
-    i, _ := json.Marshal(b)
-    fmt.Println(string(i))
+	fmt.Println(e)
+	i, _ := json.Marshal(b)
+	fmt.Println(i)
+
 }

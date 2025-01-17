@@ -7,6 +7,7 @@ import (
 	"github.com/cobra-base/cobra-go/ethers/binding"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"math/big"
 	"strings"
@@ -117,7 +118,7 @@ func BalanceAt(address string, endpoint string) (*big.Int, error) {
 	return balance, nil
 }
 
-func GetERC20Name(address string, endpoint string) (string, error) {
+func GetNameForERC20(address string, endpoint string) (string, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return "", err
@@ -133,7 +134,7 @@ func GetERC20Name(address string, endpoint string) (string, error) {
 	return name, err
 }
 
-func GetERC20Symbol(address string, endpoint string) (string, error) {
+func GetSymbolForERC20(address string, endpoint string) (string, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return "", err
@@ -149,7 +150,7 @@ func GetERC20Symbol(address string, endpoint string) (string, error) {
 	return name, err
 }
 
-func GetERC20Decimals(address string, endpoint string) (uint8, error) {
+func GetDecimalsForERC20(address string, endpoint string) (uint8, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return 0, err
@@ -166,7 +167,7 @@ func GetERC20Decimals(address string, endpoint string) (uint8, error) {
 	return decimals, err
 }
 
-func GetERC20Balance(owner string, address string, endpoint string) (*big.Int, error) {
+func GetBalanceForERC20(owner string, address string, endpoint string) (*big.Int, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return nil, err
@@ -181,4 +182,63 @@ func GetERC20Balance(owner string, address string, endpoint string) (*big.Int, e
 	}
 	bal, err := contract.BalanceOf(&bind.CallOpts{}, ownerAddress)
 	return bal, err
+}
+
+func AllowanceForERC20(owner common.Address, spender common.Address, token common.Address, endpoint string) (*big.Int, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+
+	contract, err := binding.NewERC20(token, client)
+	if err != nil {
+		return nil, err
+	}
+
+	amount, err := contract.Allowance(&bind.CallOpts{}, owner, spender)
+	if err != nil {
+		return nil, err
+	}
+	return amount, err
+}
+
+func ApproveForERC20(signer *Signer, spender common.Address, token common.Address, amount *big.Int, endpoint string,
+	chainId int64, gasPrice *big.Int) (string, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	contract, err := binding.NewERC20(token, client)
+	if err != nil {
+		return "", err
+	}
+
+	nonce, err := client.PendingNonceAt(context.Background(), signer.address)
+	if err != nil {
+		return "", fmt.Errorf("pending nonce fail,address %s:%s", signer.address, err.Error())
+	}
+
+	signing := types.LatestSignerForChainID(big.NewInt(chainId))
+	opts := &bind.TransactOpts{
+		From:  signer.address,
+		Nonce: big.NewInt(int64(nonce)),
+		Signer: func(address common.Address, transaction *types.Transaction) (*types.Transaction, error) {
+			return types.SignTx(transaction, signing, signer.privateKey)
+		},
+		GasPrice: gasPrice,
+		GasLimit: 100000,
+		Context:  context.Background(),
+	}
+
+	tx, err := contract.Approve(opts, spender, amount)
+	if err != nil {
+		return "", fmt.Errorf("approve fail,owner %s,spender %s,token %s:%s", signer.address, spender.Hex(), token.Hex(), err.Error())
+	}
+
+	txHash := tx.Hash().Hex()
+
+	return txHash, nil
 }
