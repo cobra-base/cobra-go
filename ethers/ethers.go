@@ -118,7 +118,7 @@ func BalanceAt(address string, endpoint string) (*big.Int, error) {
 	return balance, nil
 }
 
-func GetNameForERC20(address string, endpoint string) (string, error) {
+func GetNameERC20(address string, endpoint string) (string, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return "", err
@@ -134,7 +134,7 @@ func GetNameForERC20(address string, endpoint string) (string, error) {
 	return name, err
 }
 
-func GetSymbolForERC20(address string, endpoint string) (string, error) {
+func GetSymbolERC20(address string, endpoint string) (string, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return "", err
@@ -150,7 +150,7 @@ func GetSymbolForERC20(address string, endpoint string) (string, error) {
 	return name, err
 }
 
-func GetDecimalsForERC20(address string, endpoint string) (uint8, error) {
+func GetDecimalsERC20(address string, endpoint string) (uint8, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return 0, err
@@ -167,7 +167,7 @@ func GetDecimalsForERC20(address string, endpoint string) (uint8, error) {
 	return decimals, err
 }
 
-func GetBalanceForERC20(owner string, address string, endpoint string) (*big.Int, error) {
+func GetBalanceERC20(owner string, address string, endpoint string) (*big.Int, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return nil, err
@@ -184,7 +184,7 @@ func GetBalanceForERC20(owner string, address string, endpoint string) (*big.Int
 	return bal, err
 }
 
-func AllowanceForERC20(owner common.Address, spender common.Address, token common.Address, endpoint string) (*big.Int, error) {
+func AllowanceERC20(owner common.Address, spender common.Address, token common.Address, endpoint string) (*big.Int, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return nil, err
@@ -209,7 +209,7 @@ type GasFeeParams struct {
 	GasLimit  uint64
 }
 
-func ApproveForERC20(signer *Signer, spender common.Address, token common.Address, amount *big.Int, endpoint string, chainId int64, feeParams *GasFeeParams) (string, error) {
+func ApproveERC20(signer *Signer, spender common.Address, token common.Address, amount *big.Int, endpoint string, chainId int64, feeParams *GasFeeParams) (string, error) {
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
 		return "", err
@@ -242,6 +242,46 @@ func ApproveForERC20(signer *Signer, spender common.Address, token common.Addres
 	tx, err := contract.Approve(opts, spender, amount)
 	if err != nil {
 		return "", fmt.Errorf("approve fail,owner %s,spender %s,token %s:%s", signer.address, spender.Hex(), token.Hex(), err.Error())
+	}
+
+	txHash := tx.Hash().Hex()
+
+	return txHash, nil
+}
+
+func TransferERC20(signer *Signer, toAddress common.Address, tokenAddress common.Address, amount *big.Int, endpoint string, chainId int64, feeParams *GasFeeParams) (string, error) {
+	client, err := ethclient.Dial(endpoint)
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	contract, err := binding.NewERC20(tokenAddress, client)
+	if err != nil {
+		return "", err
+	}
+
+	nonce, err := client.PendingNonceAt(context.Background(), signer.address)
+	if err != nil {
+		return "", fmt.Errorf("pending nonce fail,address %s:%s", signer.address, err.Error())
+	}
+
+	signing := types.LatestSignerForChainID(big.NewInt(chainId))
+	opts := &bind.TransactOpts{
+		From:  signer.address,
+		Nonce: big.NewInt(int64(nonce)),
+		Signer: func(address common.Address, transaction *types.Transaction) (*types.Transaction, error) {
+			return types.SignTx(transaction, signing, signer.privateKey)
+		},
+		GasTipCap: feeParams.GasTipCap, // EIP 1559
+		GasFeeCap: feeParams.GasFeeCap,
+		GasLimit:  feeParams.GasLimit,
+		Context:   context.Background(),
+	}
+
+	tx, err := contract.Transfer(opts, toAddress, amount)
+	if err != nil {
+		return "", fmt.Errorf("transfer fail,owner %s,to %s,token %s:%s", signer.address, toAddress.Hex(), tokenAddress.Hex(), err.Error())
 	}
 
 	txHash := tx.Hash().Hex()
