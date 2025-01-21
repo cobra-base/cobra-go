@@ -163,14 +163,17 @@ func (s *Client) GetWalletWithdrawalRecords(currency string, from int64, to int6
 }
 
 // GetWalletWithdrawStatus 查询币种体现状态
-func (s *Client) GetWalletWithdrawStatus(currency string) ([]gateapi.WithdrawStatus, error) {
+func (s *Client) GetWalletWithdrawStatus(currency string) (*gateapi.WithdrawStatus, error) {
 	opts := &gateapi.ListWithdrawStatusOpts{}
 	opts.Currency = optional.NewString(currency)
 	ws, _, err := s.api.WalletApi.ListWithdrawStatus(s.ctx, opts)
 	if err != nil {
 		return nil, err
 	}
-	return ws, nil
+	if len(ws) != 1 {
+		fmt.Errorf("withdraw status except,len %d", len(ws))
+	}
+	return &ws[0], nil
 }
 
 // Withdraw 提现到链上钱包
