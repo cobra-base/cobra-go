@@ -108,15 +108,14 @@ func IsValidERC20Address(address string) bool {
 }
 
 // BalanceAt 获取账户ETH余额
-func BalanceAt(address string, endpoint string) (*big.Int, error) {
+func BalanceAt(address common.Address, endpoint string) (*big.Int, error) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         return nil, err
     }
     defer client.Close()
 
-    account := common.HexToAddress(address)
-    balance, err := client.BalanceAt(context.Background(), account, nil)
+    balance, err := client.BalanceAt(context.Background(), address, nil)
     if err != nil {
         return nil, err
     }
@@ -124,15 +123,14 @@ func BalanceAt(address string, endpoint string) (*big.Int, error) {
     return balance, nil
 }
 
-func GetNameERC20(address string, endpoint string) (string, error) {
+func GetNameERC20(address common.Address, endpoint string) (string, error) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         return "", err
     }
     defer client.Close()
 
-    tokenAddress := common.HexToAddress(address)
-    contract, err := binding.NewERC20(tokenAddress, client)
+    contract, err := binding.NewERC20(address, client)
     if err != nil {
         return "", err
     }
@@ -140,15 +138,14 @@ func GetNameERC20(address string, endpoint string) (string, error) {
     return name, err
 }
 
-func GetSymbolERC20(address string, endpoint string) (string, error) {
+func GetSymbolERC20(address common.Address, endpoint string) (string, error) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         return "", err
     }
     defer client.Close()
 
-    tokenAddress := common.HexToAddress(address)
-    contract, err := binding.NewERC20(tokenAddress, client)
+    contract, err := binding.NewERC20(address, client)
     if err != nil {
         return "", err
     }
@@ -156,15 +153,14 @@ func GetSymbolERC20(address string, endpoint string) (string, error) {
     return name, err
 }
 
-func GetDecimalsERC20(address string, endpoint string) (uint8, error) {
+func GetDecimalsERC20(address common.Address, endpoint string) (uint8, error) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         return 0, err
     }
     defer client.Close()
 
-    tokenAddress := common.HexToAddress(address)
-    contract, err := binding.NewERC20(tokenAddress, client)
+    contract, err := binding.NewERC20(address, client)
     if err != nil {
         return 0, err
     }
@@ -173,20 +169,18 @@ func GetDecimalsERC20(address string, endpoint string) (uint8, error) {
     return decimals, err
 }
 
-func GetBalanceERC20(owner string, address string, endpoint string) (*big.Int, error) {
+func GetBalanceERC20(owner common.Address, address common.Address, endpoint string) (*big.Int, error) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         return nil, err
     }
     defer client.Close()
 
-    ownerAddress := common.HexToAddress(owner)
-    tokenAddress := common.HexToAddress(address)
-    contract, err := binding.NewERC20(tokenAddress, client)
+    contract, err := binding.NewERC20(address, client)
     if err != nil {
         return nil, err
     }
-    bal, err := contract.BalanceOf(&bind.CallOpts{}, ownerAddress)
+    bal, err := contract.BalanceOf(&bind.CallOpts{}, owner)
     return bal, err
 }
 
