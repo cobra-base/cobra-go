@@ -18,7 +18,7 @@ type ChainInfo struct {
     PancakeswapV3QuoterAddress  string
 
     Chain   string
-    ChainId int
+    ChainId int64
 
     USDTAddress string
     WETHAddress string
