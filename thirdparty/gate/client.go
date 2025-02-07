@@ -92,15 +92,17 @@ func (s *Client) GetSpotAccounts(currency string) (*gateapi.SpotAccount, error) 
 	return &v[0], nil
 }
 
-// CreateSpotOrder 新建现货订单
+// CreateSpotLimitOrder 新建现货订单
 // side: buy, sell
-func (s *Client) CreateSpotOrder(currencyPair string, side string, amount string) (*gateapi.Order, error) {
+func (s *Client) CreateSpotLimitOrder(currencyPair string, side string, amount string, priceLimit string) (*gateapi.Order, error) {
 	order := gateapi.Order{}
 	order.Text = fmt.Sprintf("t-%d", time.Now().UnixMilli())
 	order.CurrencyPair = currencyPair
-	order.Type = "market"
 	order.Account = "spot"
 	order.Side = side
+	// order.Type = "market"
+	order.Type = "limit"
+	order.Price = priceLimit
 	order.Amount = amount
 	order.TimeInForce = "ioc" // 立即成交或者取消，只吃单不挂单
 
