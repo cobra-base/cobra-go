@@ -2,7 +2,7 @@ package ethers
 
 import "math/big"
 
-const ChainNameBsc = "bsc"
+const ChainNameBsc = "BSC"
 
 type ChainInfo struct {
 	UniswapV2FactoryAddress string
