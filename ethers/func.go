@@ -80,65 +80,66 @@ func GetReadableTxStatus(status TxStatus) string {
     }
 }
 
-func GetTxStatus(txHash string, endpoint string) TxStatus {
+func GetTxStatus(txHash string, endpoint string) (TxStatus, int64) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         glog.Warnw("ethclient dail except", "endpoint", endpoint)
-        return TxStatusUnknown
+        return TxStatusUnknown, 0
     }
     defer client.Close()
     return GetTxStatusWithClient(txHash, client)
 }
 
-func GetTxStatusWithClient(txHash string, client *ethclient.Client) TxStatus {
+func GetTxStatusWithClient(txHash string, client *ethclient.Client) (TxStatus, int64) {
     _, isPending, err := client.TransactionByHash(context.Background(), common.HexToHash(txHash))
     if err != nil {
         if strings.Contains(err.Error(), "not found") {
-            return TxStatusNotFound
+            return TxStatusNotFound, 0
         }
         glog.Warnw("transaction by hash except", "txHash", txHash, "err", err)
-        return TxStatusUnknown
+        return TxStatusUnknown, 0
     }
 
     if isPending {
-        return TxStatusPending
+        return TxStatusPending, 0
     }
 
     receipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txHash))
     if err != nil {
         if strings.Contains(err.Error(), "not found") {
-            return TxStatusNotFound
+            return TxStatusNotFound, 0
         }
         glog.Warnw("transaction receipt except", "txHash", txHash, "err", err)
-        return TxStatusUnknown
+        return TxStatusUnknown, 0
     }
 
     if receipt.Status == types.ReceiptStatusFailed {
-        return TxStatusFail
+        return TxStatusFail, 0
     } else if receipt.Status == types.ReceiptStatusSuccessful {
-        return TxStatusSuccess
+        return TxStatusSuccess, receipt.BlockNumber.Int64()
     } else {
         glog.Warnw("unrecognized transaction receipt status", "txHash", txHash, "status", receipt.Status)
-        return TxStatusUnknown
+        return TxStatusUnknown, 0
     }
 }
 
-func WaitTxStatus(txHash string, expired time.Duration, interval time.Duration, endpoint string) TxStatus {
+func WaitTxStatus(txHash string, expired time.Duration, interval time.Duration, endpoint string) (TxStatus, int64) {
     client, err := ethclient.Dial(endpoint)
     if err != nil {
         glog.Warnw("ethclient dail except", "endpoint", endpoint)
-        return TxStatusUnknown
+        return TxStatusUnknown, 0
     }
     defer client.Close()
     return WaitTxStatusWithClient(txHash, expired, interval, client)
 }
 
-func WaitTxStatusWithClient(txHash string, expired time.Duration, interval time.Duration, client *ethclient.Client) TxStatus {
+func WaitTxStatusWithClient(txHash string, expired time.Duration, interval time.Duration, client *ethclient.Client) (TxStatus, int64) {
     txStatus := TxStatusUnknown
+    blockNumber := int64(0)
     startTime := time.Now()
     for {
         time.Sleep(interval)
-        txStatus = GetTxStatusWithClient(txHash, client)
+        txStatus, blockNumber = GetTxStatusWithClient(txHash, client)
         if txStatus == TxStatusSuccess || txStatus == TxStatusFail {
             break
         }
@@ -146,5 +147,5 @@ func WaitTxStatusWithClient(txHash string, expired time.Duration, interval time.
             break
         }
     }
-    return txStatus
+    return txStatus, blockNumber
 }
