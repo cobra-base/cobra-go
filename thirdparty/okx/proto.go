@@ -41,6 +41,13 @@ type QuoteRsp struct {
 	Msg  string         `json:"msg"`
 }
 
+type RouterResult struct {
+	FromTokenAmount string `json:"fromTokenAmount"`
+	ToTokenAmount   string `json:"toTokenAmount"`
+	TradeFee        string `json:"tradeFee"`
+	EstimateGasFee  string `json:"estimateGasFee"`
+}
+
 type SwapTx struct {
 	Data                 string `json:"data"`
 	From                 string `json:"from"`
@@ -50,10 +57,12 @@ type SwapTx struct {
 	MaxPriorityFeePerGas string `json:"maxPriorityFeePerGas"` // EIP-1559:每单位 gas 优先费用的推荐值， BSC未空值
 	Slippage             string `json:"slippage"`
 	Value                string `json:"value"`
+	MinReceiveAmount     string `json:"minReceiveAmount"`
 }
 
 type SwapCallDataResult struct {
-	Tx *SwapTx `json:"tx"`
+	RouterResult *RouterResult `json:"routerResult"`
+	Tx           *SwapTx       `json:"tx"`
 }
 
 type SwapCallDataRsp struct {

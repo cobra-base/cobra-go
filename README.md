@@ -10,7 +10,7 @@
   - abigen --abi .\abi\UniswapV3Quoter.json --pkg binding --type UniswapV3Quoter --out binding/UniswapV3Quoter.go
 
 # publish
-  - git tag v0.0.90
+  - git tag v0.0.92
   - git push --tags
 
 # notice
